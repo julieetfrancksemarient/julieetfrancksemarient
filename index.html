@@ -239,8 +239,9 @@
           <div>
             <p style="margin:0 0 .6rem; color:var(--fg); text-align:left;">Merci de préciser dans votre mail :</p>
             <ul class="rsvp-list">
-              <li>Nom et prénom</li>
-              <li>Nombre d’adultes et d’enfants</li>
+              <li>Présence ou absence</li>
+              <li>Noms et prénoms des adultes</li>
+              <li>Prénoms et âges des enfants</li>
               <li>Allergies ou régimes particuliers</li>
               <li>Message (optionnel)</li>
             </ul>
@@ -438,7 +439,7 @@
   // ===== CONFIG =====
   const CONFIG = {
     couple: { bride: "Julie Derobert", groom: "Franck Marion" },
-    dateISO: "2026-08-01T14:00:00+02:00", // Samedi 1er août 2026 – 14h30
+    dateISO: "2026-08-01T14:00:00+02:00", // Samedi 1er août 2026 – 14h00
     locations: {
       church: {
         name: "Église Notre-Dame d’Arlanc",
@@ -545,8 +546,9 @@
   const subject = encodeURIComponent(CONFIG.rsvp.subject);
   const body = encodeURIComponent(
     "Merci d’indiquer :\n" +
-    "- Nom et prénom\n" +
-    "- Nombre d’adultes et d’enfants\n" +
+    "- Présence ou absence\n" +
+    "- Noms et prénoms des adultes\n" +
+    "- Prénoms et âges des enfants\n" +
     "- Allergies ou régimes particuliers\n" +
     "- Message (optionnel)"
   );
