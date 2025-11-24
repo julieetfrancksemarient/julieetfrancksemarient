@@ -72,6 +72,10 @@ links?.querySelectorAll("a").forEach(a => a.addEventListener("click", () => {
   if (phone3El) phone3El.textContent = CONFIG.contact.phones[2] || "";
   const phone4El = document.getElementById("phone4");
   if (phone4El) phone4El.textContent = CONFIG.contact.phones[3] || "";
+  const phone5El = document.getElementById("phone5");
+  if (phone5El) phone5El.textContent = CONFIG.contact.phones[4] || "";
+  const phone6El = document.getElementById("phone6");
+  if (phone6El) phone6El.textContent = CONFIG.contact.phones[5] || "";
   const emailTxt = document.getElementById("emailTxt");
   if (emailTxt && CONFIG.contact.email) {
     emailTxt.textContent = CONFIG.contact.email;
