@@ -188,5 +188,22 @@ label{font-size:.92rem;color:var(--muted);display:block;margin:6px 0 2px}
 .rsvp-help{ margin-top:.75rem; color:var(--muted); font-size:.9rem; }
 
 /* Justification des textes infos pratiques */
-#infospratiques p {text-align: justify;}
-#contacts small {text-align: justify;}
+  #infospratiques p {text-align: justify;}
+  #contacts small {text-align: justify;}
+  
+  .toggle-photo-wrapper {text-align: center;margin: 20px 0;}
+  
+  .photo-box {
+    margin-top: 14px;
+    padding: 12px;
+    border: 2px solid var(--primary);
+    border-radius: 12px;
+    display: inline-block;}
+  
+  .photo-box.hidden {display: none;}
+  
+  .photo-small {
+    max-width: 180px;           /* taille de la photo (tu peux réduire si tu veux encore plus petit) */
+    height: auto;
+    display: block;
+    margin: 0 auto;}
