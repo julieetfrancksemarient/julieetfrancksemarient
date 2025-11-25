@@ -105,8 +105,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             <label for="attendance">Serez-vous présents ?</label>
             <select id="attendance" name="attendance" required>
               <option value="">Choisissez une option</option>
-              <option value="Oui">Oui, le samedi et le dimanche</option>
-              <option value="Oui">Oui, mais seulement le samedi</option>
+              <option value="Oui, le samedi et le dimanche">Oui, le samedi et le dimanche</option>
+              <option value="Oui, mais seulement le samedi">Oui, mais seulement le samedi</option>
               <option value="Non">Non, malheureusement</option>
             </select>
           </div>
@@ -130,7 +130,15 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             
               <div class="child-guest-field" style="display:flex; gap:8px; align-items:center; margin-top:6px;">
                 <input type="text" name="child_guest_name[]" placeholder="Prénom & nom" style="flex:2;">
-                <input type="number" name="child_guest_age[]" placeholder="Âge le jour du mariage" style="flex:1;" max="17">
+                
+                <input type="number" 
+                      name="child_guest_age[]" 
+                      placeholder="Âge" 
+                      style="flex:1;" 
+                      min="0" 
+                      max="99" 
+                      step="1"
+                      oninput="this.value = !!this.value && Math.abs(this.value) >= 0 ? Math.abs(this.value) : null"> 
               </div>
             </div>
             

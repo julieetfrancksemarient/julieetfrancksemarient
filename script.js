@@ -193,20 +193,46 @@ function parseDateISO(iso) {
     statusEl.style.color = '';
     statusEl.textContent = "Envoi en cours…";
 
-    // build payload; include any hidden inputs like access_key or subject if present
+    // 1. Collect dynamic Adult Guests
+    // We select all inputs with the name "adult_guest[]"
+    const adultInputs = form.querySelectorAll('input[name="adult_guest[]"]');
+    const adultNames = Array.from(adultInputs)
+                            .map(input => input.value.trim())
+                            .filter(val => val !== ""); // remove empty entries
+
+    // 2. Collect dynamic Child Guests
+    // We pair up names and ages based on their index
+    const childNameInputs = form.querySelectorAll('input[name="child_guest_name[]"]');
+    const childAgeInputs = form.querySelectorAll('input[name="child_guest_age[]"]');
+    const childGuests = [];
+
+    childNameInputs.forEach((input, index) => {
+        const name = input.value.trim();
+        const age = childAgeInputs[index]?.value.trim();
+        
+        if (name) {
+            // Format: "Lucas (5 ans)" or just "Lucas" if age is missing
+            childGuests.push(age ? `${name} (${age} ans)` : name);
+        }
+    });
+
+    // 3. Build payload
+    // We join the arrays into a single comma-separated string for the email
     const payload = {
-      name: form.name?.value || "",
+      prenom_et_nom: form.name?.value || "",
       email: form.email?.value || "",
-      phone: form.phone?.value || "",
-      attendance: form.attendance?.value || "",
-      adults: form.adults?.value || "0",
-      children: form.children?.value || "0",
-      namesDetail: form['namesDetail']?.value || "",
+      telephone: form.phone?.value || "",
+      presence: form.attendance?.value || "",
+      
+      // New fields: send nice strings instead of raw arrays
+      adultes_supplementaires: adultNames.length > 0 ? adultNames.join(", ") : "Aucun",
+      enfants: childGuests.length > 0 ? childGuests.join(", ") : "Aucun",
+      
       diet: form.diet?.value || "",
       message: form.message?.value || ""
     };
 
-    // include hidden inputs if they exist (access_key, subject, any other fields)
+    // include hidden inputs if they exist (access_key, subject)
     const accessKeyEl = form.querySelector('input[name="access_key"]');
     if (accessKeyEl) payload.access_key = accessKeyEl.value;
 
@@ -214,21 +240,22 @@ function parseDateISO(iso) {
     if (subjectEl) payload.subject = subjectEl.value;
 
     try {
-      // endpoint = form.action (should be https://api.web3forms.com/submit for Web3Forms)
       const endpoint = form.action && form.action.trim() !== "" ? form.action : '/send';
       const resp = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
+      
       if (!resp.ok) throw new Error('Erreur serveur');
+      
       const json = await resp.json();
       if (json && (json.success || json.success === true)) {
         statusEl.style.color = 'green';
         statusEl.textContent = 'Merci — votre réponse a bien été envoyée.';
         form.reset();
+        // Optional: Reset the dynamic fields UI here if you want (remove extra inputs)
       } else {
-        // Web3Forms can return {success:false, message: "..."} or similar
         throw new Error(json?.error || json?.message || 'Envoi échoué');
       }
     } catch (err) {
@@ -349,9 +376,17 @@ document.addEventListener("DOMContentLoaded", function () {
     const inputAge = document.createElement("input");
     inputAge.type = "number";
     inputAge.name = "child_guest_age[]";
-    inputAge.placeholder = "Âge le jour du mariage";
+    inputAge.placeholder = "Âge";       // Shortened placeholder fits better
     inputAge.style.flex = "1";
-    inputAge.max = 17;
+    
+    // ADD THESE LINES:
+    inputAge.min = "0";
+    inputAge.max = "17";
+    inputAge.step = "1";
+    // Prevents negative numbers and non-numeric pasting
+    inputAge.oninput = function() {
+        this.value = !!this.value && Math.abs(this.value) >= 0 ? Math.abs(this.value) : null;
+    };
 
     div.appendChild(inputName);
     div.appendChild(inputAge);
