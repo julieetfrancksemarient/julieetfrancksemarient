@@ -126,6 +126,8 @@ section{padding:56px 0}
 
 .grid{display:grid;gap:16px}
 
+.after-count {margin-top: 20px; /* ajuste la valeur comme tu veux */}
+
 /* Global rule: applies on mobile AND desktop */
 .grid-4 {
   margin-top: 16px; 
