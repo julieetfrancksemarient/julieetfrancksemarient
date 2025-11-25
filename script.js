@@ -314,3 +314,77 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 });
+
+// --- Gestion des ajouts d'invités enfants ---
+document.addEventListener("DOMContentLoaded", function () {
+  const wrapper = document.getElementById("childGuestsWrapper");
+  const addBtn = document.getElementById("addChildGuestBtn");
+
+  if (!wrapper || !addBtn) return;
+
+  let count = 1;      // 1 champ déjà présent
+  const max = 6;      // 1 existant + 5 nouveaux
+
+  addBtn.addEventListener("click", function () {
+    if (count >= max) return;
+    count++;
+
+    // Crée le conteneur du champ
+    const div = document.createElement("div");
+    div.className = "child-guest-field";
+    div.style.position = "relative";
+    div.style.marginTop = "6px";
+
+    // Input
+    const input = document.createElement("input");
+    input.type = "text";
+    input.name = "child_guest[]";
+    input.placeholder = "Prénom & nom";
+    input.style.paddingRight = "28px"; // espace pour bouton supprimer
+    div.appendChild(input);
+
+    // Bouton supprimer
+    const removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.textContent = "✕";
+    removeBtn.style.position = "absolute";
+    removeBtn.style.right = "4px";
+    removeBtn.style.top = "50%";
+    removeBtn.style.transform = "translateY(-50%)";
+    removeBtn.style.background = "red";
+    removeBtn.style.color = "white";
+    removeBtn.style.border = "none";
+    removeBtn.style.borderRadius = "50%";
+    removeBtn.style.width = "22px";
+    removeBtn.style.height = "22px";
+    removeBtn.style.cursor = "pointer";
+    removeBtn.style.display = "none";
+    removeBtn.style.fontSize = "14px";
+    removeBtn.style.lineHeight = "18px";
+    removeBtn.style.padding = "0";
+
+    div.appendChild(removeBtn);
+
+    // Affiche le bouton supprimer au survol
+    div.addEventListener("mouseenter", () => removeBtn.style.display = "block");
+    div.addEventListener("mouseleave", () => removeBtn.style.display = "none");
+
+    // Supprimer le champ
+    removeBtn.addEventListener("click", () => {
+      wrapper.removeChild(div);
+      count--;
+      if (count < max) {
+        addBtn.disabled = false;
+        addBtn.textContent = "+ Ajouter un enfant";
+      }
+    });
+
+    wrapper.appendChild(div);
+
+    // Désactive le bouton ajouter si max atteint
+    if (count >= max) {
+      addBtn.disabled = true;
+      addBtn.textContent = "Limite atteinte";
+    }
+  });
+});
