@@ -49,7 +49,6 @@ links?.querySelectorAll("a").forEach(a => a.addEventListener("click", () => {
       <div class="line"><strong>Date :</strong> ${dateLong}</div>
       <div class="line"><strong>Cérémonie :</strong> ${CONFIG.locations.church.time} – ${CONFIG.locations.church.name}</div>
       <div class="line"><strong>Vin d’honneur :</strong> ${CONFIG.locations.venue.time} – ${CONFIG.locations.venue.name}</div>
-      <div class="line"><strong>Adresse :</strong> ${CONFIG.locations.venue.address}</div>
     `;
   }
   const venueAddrEl = document.getElementById("venueAddr");
