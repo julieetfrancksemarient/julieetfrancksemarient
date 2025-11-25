@@ -146,6 +146,12 @@ footer{border-top:1px solid var(--border);padding:28px 0;text-align:center;color
 input,textarea,select{width:100%;padding:.7rem .85rem;border:1px solid var(--border);border-radius:12px;background:transparent;color:inherit;transition:border-color .2s ease, box-shadow .2s ease}
 input:focus,textarea:focus,select:focus{outline:none;border-color:color-mix(in oklab, var(--primary) 35%, white);box-shadow:0 0 0 4px color-mix(in oklab, var(--primary) 18%, white)}
 label{font-size:.92rem;color:var(--muted);display:block;margin:6px 0 2px}
+/* Tous les labels du formulaire RSVP */
+#rsvp label {font-size: .92rem;   /* conserve la taille existante */
+  color: black;        /* texte noir */
+  font-weight: 600;    /* un peu plus gras */
+  display: block;
+  margin: 6px 0 2px}
 
 /* Hébergements */
 .stay{display:flex; gap:14px; align-items:center;}
