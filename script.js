@@ -240,3 +240,33 @@ function parseDateISO(iso) {
     }
   });
 })();
+
+// --- Gestion des ajouts d'invités adultes ---
+document.addEventListener("DOMContentLoaded", function () {
+  const wrapper = document.getElementById("adultGuestsWrapper");
+  const addBtn = document.getElementById("addAdultGuestBtn");
+
+  if (!wrapper || !addBtn) return; // Sécurité si la page ne contient pas la section
+
+  let count = 1;   // 1 champ déjà dans le HTML
+  const max = 6;   // 1 existant + 5 nouveaux
+
+  addBtn.addEventListener("click", function () {
+    if (count >= max) return;
+
+    count++;
+
+    const div = document.createElement("div");
+    div.className = "adult-guest-field";
+    div.innerHTML = `
+      <input type="text" name="adult_guest[]" placeholder="Prénom & nom">
+    `;
+
+    wrapper.appendChild(div);
+
+    if (count >= max) {
+      addBtn.disabled = true;
+      addBtn.textContent = "Limite atteinte";
+    }
+  });
+});
