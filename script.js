@@ -1,4 +1,7 @@
 // Shared configuration and DOM-safe behavior for index.html, infos.html and hebergement.html
+
+function capitalizeFirst(str) {return str.charAt(0).toUpperCase() + str.slice(1);}
+
 const CONFIG = {
   couple: { bride: "Julie Derobert", groom: "Franck Marion" },
   dateISO: "2026-08-01T14:00:00+02:00",
@@ -42,11 +45,16 @@ links?.querySelectorAll("a").forEach(a => a.addEventListener("click", () => {
 // Text inject (HERO)
 (function(){
   const dateObj = new Date(CONFIG.dateISO);
-  const dateLong = dateObj.toLocaleDateString("fr-FR", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+  const dateLong = dateObj.toLocaleDateString("fr-FR", { weekday: "long", year: "numeric", month: "long", day: "numeric" }); 
+      // Mettre la première lettre du jour et du mois en majuscule
+        let parts = dateLong.split(" "); // ["samedi", "1", "août", "2026"]
+        parts[0] = capitalizeFirst(parts[0]);   // Samedi
+        parts[2] = capitalizeFirst(parts[2]);   // Août
+        const dateLongPretty = parts.join(" "); // Samedi 1 Août 2026
   const lines = document.getElementById("eventLines");
   if (lines) {
     lines.innerHTML = `
-      <div class="line"><strong>Date :</strong> ${dateLong}</div>
+      <div class="line"><strong>Date :</strong> ${dateLongPretty}</div>
       <div class="line"><strong>Cérémonie :</strong> ${CONFIG.locations.church.time} – ${CONFIG.locations.church.name}</div>
       <div class="line"><strong>Vin d’honneur :</strong> ${CONFIG.locations.venue.time} – ${CONFIG.locations.venue.name}</div>
     `;
