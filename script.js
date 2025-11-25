@@ -189,42 +189,74 @@ function parseDateISO(iso) {
   form.addEventListener('submit', async (ev) => {
     ev.preventDefault();
     if (form.dataset.sending === "1") return;
+
+    // --- VALIDATION START ---
+    let isValid = true;
+
+    // 1. Check standard required fields
+    if (!form.name.value.trim() || 
+        !form.email.value.trim() || 
+        !form.phone.value.trim() ||  // <--- Added this check
+        !form.attendance.value.trim()) {
+        isValid = false;
+    }
+
+
+    // 2. Check Child Guests Logic (Name filled -> Age required)
+    const childNameInputs = form.querySelectorAll('input[name="child_guest_name[]"]');
+    const childAgeInputs = form.querySelectorAll('input[name="child_guest_age[]"]');
+    
+    childNameInputs.forEach((input, index) => {
+        const name = input.value.trim();
+        const ageInput = childAgeInputs[index];
+        const age = ageInput ? ageInput.value.trim() : "";
+
+        // If name is filled but age is empty
+        if (name !== "" && age === "") {
+            isValid = false;
+            // Highlight the specific missing age field
+            if (ageInput) ageInput.style.borderColor = "crimson"; 
+        } else if (ageInput) {
+             // Reset border if corrected
+            ageInput.style.borderColor = ""; 
+        }
+    });
+
+    if (!isValid) {
+        statusEl.style.color = 'crimson';
+        statusEl.textContent = "Veuillez remplir tous les champs obligatoires svp";
+        return; // STOP submission
+    }
+    // --- VALIDATION END ---
+
     form.dataset.sending = "1";
     statusEl.style.color = '';
     statusEl.textContent = "Envoi en cours…";
 
     // 1. Collect dynamic Adult Guests
-    // We select all inputs with the name "adult_guest[]"
     const adultInputs = form.querySelectorAll('input[name="adult_guest[]"]');
     const adultNames = Array.from(adultInputs)
                             .map(input => input.value.trim())
-                            .filter(val => val !== ""); // remove empty entries
+                            .filter(val => val !== ""); 
 
-    // 2. Collect dynamic Child Guests
-    // We pair up names and ages based on their index
-    const childNameInputs = form.querySelectorAll('input[name="child_guest_name[]"]');
-    const childAgeInputs = form.querySelectorAll('input[name="child_guest_age[]"]');
+    // 2. Collect dynamic Child Guests (re-run loop for payload)
     const childGuests = [];
-
     childNameInputs.forEach((input, index) => {
         const name = input.value.trim();
         const age = childAgeInputs[index]?.value.trim();
-        
         if (name) {
-            // Format: "Lucas (5 ans)" or just "Lucas" if age is missing
             childGuests.push(age ? `${name} (${age} ans)` : name);
         }
     });
 
     // 3. Build payload
-    // We join the arrays into a single comma-separated string for the email
     const payload = {
       prenom_et_nom: form.name?.value || "",
       email: form.email?.value || "",
       telephone: form.phone?.value || "",
       presence: form.attendance?.value || "",
       
-      // New fields: send nice strings instead of raw arrays
+      // Send nice strings instead of raw arrays
       adultes_supplementaires: adultNames.length > 0 ? adultNames.join(", ") : "Aucun",
       enfants: childGuests.length > 0 ? childGuests.join(", ") : "Aucun",
       
@@ -254,7 +286,6 @@ function parseDateISO(iso) {
         statusEl.style.color = 'green';
         statusEl.textContent = 'Merci — votre réponse a bien été envoyée.';
         form.reset();
-        // Optional: Reset the dynamic fields UI here if you want (remove extra inputs)
       } else {
         throw new Error(json?.error || json?.message || 'Envoi échoué');
       }
@@ -376,14 +407,13 @@ document.addEventListener("DOMContentLoaded", function () {
     const inputAge = document.createElement("input");
     inputAge.type = "number";
     inputAge.name = "child_guest_age[]";
-    inputAge.placeholder = "Âge";       // Shortened placeholder fits better
+    inputAge.placeholder = "Âge";       
     inputAge.style.flex = "1";
     
-    // ADD THESE LINES:
+    // RESTRICTIONS & VALIDATION (No text, positive numbers only)
     inputAge.min = "0";
     inputAge.max = "17";
     inputAge.step = "1";
-    // Prevents negative numbers and non-numeric pasting
     inputAge.oninput = function() {
         this.value = !!this.value && Math.abs(this.value) >= 0 ? Math.abs(this.value) : null;
     };

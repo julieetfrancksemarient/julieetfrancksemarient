@@ -87,22 +87,22 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
           <!-- Nom -->
           <div>
-            <label for="name">Qui nous répond ?</label>
+            <label for="name">Qui nous répond ? <span style="color:var(--primary)">*</span></label>
             <input type="text" id="name" name="name" required placeholder="Prénom &amp; nom">
           </div>
 
           <!-- Email + téléphone -->
           <div class="field-inline" style="display:grid;gap:14px">
-            <div>
-              <label for="email">Comment on vous recontacte ?</label>
-              <input type="email" id="email" name="email" required placeholder="vous@example.com">
-              <input type="tel" id="phone" name="phone" placeholder="+33 6 12 34 56 78">
-            </div>
+           <div>
+            <label for="email">Comment on vous recontacte ? <span style="color:var(--primary)">*</span></label>
+            <input type="email" id="email" name="email" required placeholder="vous@example.com">
+            <input type="tel" id="phone" name="phone" required placeholder="+33 6 12 34 56 78">
+          </div>
           </div>
 
           <!-- Présence -->
           <div>
-            <label for="attendance">Serez-vous présents ?</label>
+            <label for="attendance">Serez-vous présents ? <span style="color:var(--primary)">*</span></label>
             <select id="attendance" name="attendance" required>
               <option value="">Choisissez une option</option>
               <option value="Oui, le samedi et le dimanche">Oui, le samedi et le dimanche</option>
@@ -156,6 +156,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           <div>
             <label for="message">Voulez vous nous laissez un message ? (optionnel)</label>
             <textarea id="message" name="message" placeholder="Un petit mot si vous en avez envie 💌"></textarea>
+          </div>
+
+          <div style="font-size:0.85rem; color:var(--primary); margin-bottom:12px;">
+            * Champs obligatoires
           </div>
 
           <div style="text-align:center;margin-top:14px;">
