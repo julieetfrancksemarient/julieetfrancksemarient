@@ -187,107 +187,76 @@ function parseDateISO(iso) {
   wrap.addEventListener('touchend', end);
 })();
 
-// RSVP form submit -> POST to form.action (supports Web3Forms)
+// RSVP form submit -> POST to Web3Forms via FormData
 (function(){
   const form = document.getElementById('rsvpForm');
   if (!form) return;
+
   const statusEl = document.getElementById('rsvpStatus');
 
   form.addEventListener('submit', async (ev) => {
-    ev.preventDefault();
-    if (form.dataset.sending === "1") return;
+    ev.preventDefault(); // empêche l'envoi classique pour la validation
 
-    // --- VALIDATION START ---
+    if (form.dataset.sending === "1") return; // évite double soumission
+
+    // --- VALIDATION ---
     let isValid = true;
 
-    // 1. Check standard required fields
-    if (!form.name.value.trim() || 
-        !form.email.value.trim() || 
-        !form.phone.value.trim() ||  // <--- Added this check
-        !form.attendance.value.trim()) {
-        isValid = false;
+    // Vérification champs obligatoires
+    if (!form.name.value.trim() || !form.email.value.trim() || !form.phone.value.trim() || !form.attendance.value.trim()) {
+      isValid = false;
     }
 
-
-    // 2. Check Child Guests Logic (Name filled -> Age required)
-    const childNameInputs = form.querySelectorAll('input[name="child_guest_name[]"]');
-    const childAgeInputs = form.querySelectorAll('input[name="child_guest_age[]"]');
-    
-    childNameInputs.forEach((input, index) => {
-        const name = input.value.trim();
-        const ageInput = childAgeInputs[index];
-        const age = ageInput ? ageInput.value.trim() : "";
-
-        // If name is filled but age is empty
-        if (name !== "" && age === "") {
-            isValid = false;
-            // Highlight the specific missing age field
-            if (ageInput) ageInput.style.borderColor = "crimson"; 
-        } else if (ageInput) {
-             // Reset border if corrected
-            ageInput.style.borderColor = ""; 
-        }
+    // Vérification enfants : si prénom rempli, âge obligatoire
+    const childNames = form.querySelectorAll('input[name="child_guest_name[]"]');
+    const childAges = form.querySelectorAll('input[name="child_guest_age[]"]');
+    childNames.forEach((input, idx) => {
+      const ageInput = childAges[idx];
+      if (input.value.trim() && (!ageInput.value.trim())) {
+        isValid = false;
+        ageInput.style.borderColor = "crimson";
+      } else if (ageInput) {
+        ageInput.style.borderColor = "";
+      }
     });
 
     if (!isValid) {
-        statusEl.style.color = 'crimson';
-        statusEl.textContent = "Veuillez remplir tous les champs obligatoires svp";
-        return; // STOP submission
+      statusEl.style.color = 'crimson';
+      statusEl.textContent = "Veuillez remplir tous les champs obligatoires svp";
+      return;
     }
-    // --- VALIDATION END ---
+    // --- FIN VALIDATION ---
 
     form.dataset.sending = "1";
     statusEl.style.color = '';
     statusEl.textContent = "Envoi en cours…";
 
-    // 1. Collect dynamic Adult Guests
-    const adultInputs = form.querySelectorAll('input[name="adult_guest[]"]');
-    const adultNames = Array.from(adultInputs)
-                            .map(input => input.value.trim())
-                            .filter(val => val !== ""); 
-
-    // 2. Collect dynamic Child Guests (re-run loop for payload)
-    const childGuests = [];
-    childNameInputs.forEach((input, index) => {
-        const name = input.value.trim();
-        const age = childAgeInputs[index]?.value.trim();
-        if (name) {
-            childGuests.push(age ? `${name} (${age} ans)` : name);
-        }
-    });
-
-    // 3. Build payload
-    const payload = {
-      prenom_et_nom: form.name?.value || "",
-      email: form.email?.value || "",
-      telephone: form.phone?.value || "",
-      presence: form.attendance?.value || "",
-      
-      // Send nice strings instead of raw arrays
-      adultes_supplementaires: adultNames.length > 0 ? adultNames.join(", ") : "Aucun",
-      enfants: childGuests.length > 0 ? childGuests.join(", ") : "Aucun",
-      
-      diet: form.diet?.value || "",
-      message: form.message?.value || ""
-    };
-
-    // include hidden inputs if they exist (access_key, subject)
-    const accessKeyEl = form.querySelector('input[name="access_key"]');
-    if (accessKeyEl) payload.access_key = accessKeyEl.value;
-
-    const subjectEl = form.querySelector('input[name="subject"]');
-    if (subjectEl) payload.subject = subjectEl.value;
-
     try {
-      const endpoint = form.action && form.action.trim() !== "" ? form.action : '/send';
-      const resp = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+      // Construction du FormData pour Web3Forms
+      const formData = new FormData(form);
+
+      // Champs dynamiques : adultes
+      const adultInputs = form.querySelectorAll('input[name="adult_guest[]"]');
+      const adults = Array.from(adultInputs).map(i => i.value.trim()).filter(v => v);
+      formData.set('adultes_supplementaires', adults.length ? adults.join(", ") : "Aucun");
+
+      // Champs dynamiques : enfants
+      const children = [];
+      childNames.forEach((input, idx) => {
+        const name = input.value.trim();
+        const age = childAges[idx].value.trim();
+        if (name) children.push(age ? `${name} (${age} ans)` : name);
       });
-      
+      formData.set('enfants', children.length ? children.join(", ") : "Aucun");
+
+      // Envoi via fetch compatible Web3Forms
+      const resp = await fetch(form.action, {
+        method: 'POST',
+        body: formData
+      });
+
       if (!resp.ok) throw new Error('Erreur serveur');
-      
+
       const json = await resp.json();
       if (json && (json.success || json.success === true)) {
         statusEl.style.color = 'green';
@@ -296,6 +265,7 @@ function parseDateISO(iso) {
       } else {
         throw new Error(json?.error || json?.message || 'Envoi échoué');
       }
+
     } catch (err) {
       console.error(err);
       statusEl.style.color = 'crimson';
@@ -305,6 +275,7 @@ function parseDateISO(iso) {
     }
   });
 })();
+
 
 // --- Gestion des ajouts d'invités adultes ---
 document.addEventListener("DOMContentLoaded", function () {
