@@ -174,3 +174,4 @@ label{font-size:.92rem;color:var(--muted);display:block;margin:6px 0 2px}
 
 /* Justification des textes infos pratiques */
 #infospratiques p {text-align: justify;}
+#contacts small {text-align: justify;}
